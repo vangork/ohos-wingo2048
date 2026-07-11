@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# HarmonyOS / hvigor 构建产物
+Game2048/node_modules/
+Game2048/oh_modules/
+Game2048/local.properties
+Game2048/.idea/
+Game2048/**/build/
+Game2048/.hvigor/
+Game2048/.cxx/
+Game2048/.appanalyzer/
+Game2048/**/.test/
+Game2048/.clangd
+Game2048/.clang-format
+Game2048/.clang-tidy

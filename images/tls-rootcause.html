@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_style.css">
+<style>
+  .wrap{width:840px}
+  .cols{display:flex;gap:18px}
+  .col{flex:1;border-radius:16px;padding:18px 20px}
+  .col.bad{background:var(--red-bg);border:1.5px solid #e9c2ba}
+  .col.good{background:var(--green-bg);border:1.5px solid #cfe0bf}
+  .c-h{font-size:15px;font-weight:700;margin-bottom:4px}
+  .col.bad .c-h{color:var(--red)}
+  .col.good .c-h{color:var(--green)}
+  .c-sub{font-size:12px;color:var(--ink2);margin-bottom:14px}
+  .step{font-family:var(--mono);font-size:12px;color:#5b5249;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin-bottom:8px;line-height:1.5}
+  .step b{color:#5b5249}
+  .verdict{margin-top:6px;font-size:13px;font-weight:700}
+  .col.bad .verdict{color:var(--red)}
+  .col.good .verdict{color:var(--green)}
+  .gate{text-align:center;font-size:12px;color:var(--ink2);margin:14px 0 4px;font-family:var(--mono)}
+  .foot{margin-top:18px;font-size:12px;color:var(--ink2);line-height:1.85}
+  .k{color:var(--orange-d);font-family:var(--mono)}
+</style></head><body>
+<div class="wrap">
+  <div class="title">拦路虎:initial-exec TLS resolves to dynamic definition</div>
+  <div class="subtitle">同一个 .so,被 musl 动态链接器加载时因 TLS 模型被拒——左边是病因,右边是解药</div>
+
+  <div class="cols">
+    <div class="col bad">
+      <div class="c-h">Go 1.26.4 主线 · c-shared</div>
+      <div class="c-sub">goroutine 指针 g 的 TLS 访问写死 IE 模型</div>
+      <div class="step">readelf <b>-d</b> &nbsp;→&nbsp; <b>STATIC_TLS</b> 标志</div>
+      <div class="step">readelf <b>-r</b> &nbsp;→&nbsp; <b>R_X86_64_TPOFF64</b><br>(initial-exec)</div>
+      <div class="gate">musl:dlopen 库里的 IE TLS ✗ 拒绝</div>
+      <div class="verdict">✗ 一启动即闪退</div>
+    </div>
+
+    <div class="col good">
+      <div class="c-h">ohos-go fork · GOOS=openharmony</div>
+      <div class="c-sub">OpenHarmony-SIG/ohos_golang_go,改用 TLSDESC</div>
+      <div class="step">readelf <b>-d</b> &nbsp;→&nbsp; 无 STATIC_TLS<br>只剩 NEEDED libc.so</div>
+      <div class="step">readelf <b>-r</b> &nbsp;→&nbsp; <b>R_AARCH64_TLSDESC</b></div>
+      <div class="gate">musl:dlopen 库里的 TLSDESC ✓ 完全支持</div>
+      <div class="verdict">✓ 完整链路点亮(仅 arm64)</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <b>为何 glibc 能跑、musl 不能?</b> &nbsp;glibc 对 dlopen 库里的 IE TLS 睁一只眼闭一只眼,musl 严格按标准办事直接报错。<br>
+    <b>为何 Rust 零改源码、Go 不能?</b> &nbsp;Rust 用 <span class="k">LLVM</span> 后端(自带正确 TLSDESC);Go 是自带后端,TLS 模型按 GOOS 硬编码,只能改源码 / 等官方 fork。<br>
+    上游依据:Go <span class="k">#54805</span> · PR <span class="k">#75048</span>(新增 -tls=GD,未进 1.26.4) · sing-box <span class="k">#3681</span>
+  </div>
+</div>
+</body></html>

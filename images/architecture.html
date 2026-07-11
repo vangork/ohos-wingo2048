@@ -1,0 +1,45 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_style.css">
+<style>
+  .wrap{width:760px}
+  .layer{padding:20px 24px;border-radius:16px;position:relative}
+  .layer .l-title{font-size:16px;font-weight:700}
+  .layer .l-role{font-size:12px;color:var(--ink2);margin-top:2px}
+  .layer .l-code{font-family:var(--mono);font-size:12.5px;margin-top:12px;color:#5b5249;line-height:1.7}
+  .l1{background:#fff;border:1.5px solid var(--line)}
+  .l2{background:var(--orange-bg);border:1.5px solid #f0cda3}
+  .l3{background:var(--card2);border:1.5px solid var(--line)}
+  .conn{display:flex;flex-direction:column;align-items:center;padding:9px 0}
+  .conn .bus{font-family:var(--mono);font-size:11.5px;color:var(--orange-d);background:#fff;border:1px solid #f0cda3;border-radius:999px;padding:2px 12px;margin:5px 0}
+  .ar{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--line)}
+  .dot{font-size:11px;color:var(--ink2)}
+</style></head><body>
+<div class="wrap">
+  <div class="title">三层架构:Go 写逻辑 · ArkTS 画界面 · NAPI 桥接</div>
+  <div class="subtitle">游戏规则 100% 在 Go,上下两层只做渲染与搬运</div>
+
+  <div class="layer l1">
+    <div class="l-title">ArkTS UI &nbsp;<span class="tag tag-gray">Index.ets</span></div>
+    <div class="l-role">界面渲染 · 手势识别 · 把方向喂回 Go</div>
+    <div class="l-code">import { newGame, move, state } from 'libentry.so'</div>
+  </div>
+
+  <div class="conn"><div class="bus">NAPI &nbsp;(Node-API)</div><div class="ar"></div></div>
+
+  <div class="layer l2">
+    <div class="l-title">libentry.so &nbsp;<span class="tag tag-orange">napi_init.cpp · C++</span></div>
+    <div class="l-role">桥接层:调 Go 函数 · 搬运字符串/内存 · 不碰任何规则</div>
+    <div class="l-code">newGame() / move(dir) / state() &nbsp;→&nbsp; C 函数</div>
+  </div>
+
+  <div class="conn"><div class="bus">C ABI &nbsp;(extern "C")</div><div class="ar"></div></div>
+
+  <div class="layer l3">
+    <div class="l-title">lib2048core.so &nbsp;<span class="tag tag-gray">game2048.go · Go</span></div>
+    <div class="l-role">全部游戏逻辑:棋盘 · 滑动合并 · 随机生成 · 胜负判定</div>
+    <div class="l-code">Game2048New / Game2048Move / Game2048State / Game2048Free</div>
+  </div>
+
+  <div style="margin-top:18px" class="dot">▲ &nbsp;<span class="mono">go build -buildmode=c-shared</span> 把 Go 编成 .so,CGO <span class="mono">//export</span> 导出纯 C 函数</div>
+</div>
+</body></html>

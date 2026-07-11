@@ -1,0 +1,53 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_style.css">
+<style>
+  .wrap{width:880px}
+  .row{display:flex;align-items:stretch;gap:0}
+  .box{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;flex:1;min-width:0}
+  .box .b-h{font-size:13.5px;font-weight:700;color:#5b5249;margin-bottom:8px}
+  .box .b-l{font-family:var(--mono);font-size:11px;color:var(--ink2);line-height:1.7;word-break:break-all}
+  .box.accent{background:var(--orange-bg);border-color:#f0cda3}
+  .box.accent .b-h{color:var(--orange-d)}
+  .step{display:flex;align-items:center;justify-content:center;color:var(--orange);font-size:22px;padding:0 10px;flex:0 0 auto}
+  .note{margin-top:14px;font-size:12px;color:var(--ink2);line-height:1.8}
+  .k{color:var(--orange-d);font-family:var(--mono)}
+  .out{display:flex;gap:10px;margin-top:12px}
+  .pill{background:var(--green-bg);color:var(--green);font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:10px;font-weight:600}
+</style></head><body>
+<div class="wrap">
+  <div class="title">「Go 鸿蒙编译器」:一组环境变量喂对 CGO 交叉编译</div>
+  <div class="subtitle">本质是「鸿蒙 NDK 的 clang + sysroot 做 CGO 交叉编译」,无需新的 Go 后端</div>
+
+  <div class="row">
+    <div class="box accent">
+      <div class="b-h">① 环境变量</div>
+      <div class="b-l">CGO_ENABLED=1<br>GOOS=linux<br>GOARCH=amd64<br>CC=…/llvm/clang.exe<br>CGO_CFLAGS=-target<br>&nbsp; x86_64-linux-ohos<br>&nbsp; --sysroot=…&nbsp;-D__MUSL__</div>
+    </div>
+    <div class="step">→</div>
+    <div class="box">
+      <div class="b-h">② go build</div>
+      <div class="b-l">go build<br>&nbsp; -buildmode=c-shared<br>&nbsp; -trimpath<br>&nbsp; -o lib2048core.so .</div>
+    </div>
+    <div class="step">→</div>
+    <div class="box">
+      <div class="b-h">③ 产物分发</div>
+      <div class="b-l">lib2048core.so<br>&nbsp;→ entry/libs/&lt;abi&gt;/<br><br>lib2048core.h<br>&nbsp;→ cpp/golib/</div>
+    </div>
+    <div class="step">→</div>
+    <div class="box">
+      <div class="b-h">④ 打进 HAP</div>
+      <div class="b-l">CMake 链接<br>libentry.so<br>+ lib2048core.so<br>→ HAP/libs/&lt;abi&gt;</div>
+    </div>
+  </div>
+
+  <div class="out">
+    <div class="pill">arm64-v8a → aarch64-linux-ohos</div>
+    <div class="pill">x86_64 → x86_64-linux-ohos</div>
+  </div>
+
+  <div class="note">
+    封装为 <span class="k">tools/build-go-hos.ps1</span>,切真机仅改 <span class="k">-Abi arm64-v8a</span> 与对应目录。<br>
+    踩坑提示:<span class="k">CGO_CFLAGS</span> 里 sysroot <b>不能带引号</b>、且需统一转<b>正斜杠</b> —— 否则 Go 二次拆参后 clang 报 <span class="mono">'stdlib.h' file not found</span>。
+  </div>
+</div>
+</body></html>

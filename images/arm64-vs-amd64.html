@@ -1,0 +1,44 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_style.css">
+<style>
+  .wrap{width:820px}
+  .cols{display:flex;gap:18px}
+  .col{flex:1;border-radius:16px;padding:20px;background:#fff;border:1.5px solid var(--line)}
+  .col.good{background:var(--green-bg);border-color:#cfe0bf}
+  .col.bad{background:var(--card2);border-color:var(--line)}
+  .c-h{font-size:16px;font-weight:700;color:#5b5249;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .li{font-size:13px;color:#5b5249;line-height:1.5;margin-bottom:10px;padding-left:16px;position:relative}
+  .li:before{content:"–";position:absolute;left:0;color:var(--ink2)}
+  .li .m{font-family:var(--mono);font-size:12px;color:var(--orange-d)}
+  .res{margin-top:6px;font-size:13.5px;font-weight:700;padding:8px 12px;border-radius:10px}
+  .res.ok{background:#dcebc7;background:rgba(111,154,91,.16);color:var(--green)}
+  .res.no{background:var(--red-bg);color:var(--red)}
+  .foot{margin-top:18px;font-size:12px;color:var(--ink2);line-height:1.85}
+</style></head><body>
+<div class="wrap">
+  <div class="title">为何 fork 只支持 arm64:寄存器决定了 TLS 形态</div>
+  <div class="subtitle">go tool dist list 里 openharmony 只有 arm64,差异源自架构本身</div>
+
+  <div class="cols">
+    <div class="col good">
+      <div class="c-h">arm64 (aarch64)　<span class="tag tag-green">支持</span></div>
+      <div class="li"><span class="m">MRS TPIDR_EL0</span> 硬件指令直接读线程指针</div>
+      <div class="li">有空闲寄存器可常驻存放 goroutine 指针 <span class="m">g</span></div>
+      <div class="li">几乎不触发会引发 IE 重定位的那种 TLS</div>
+      <div class="res ok">✓ 真机直接点亮,完整链路跑通</div>
+    </div>
+
+    <div class="col bad">
+      <div class="c-h">amd64 (x86_64)　<span class="tag tag-red">不支持</span></div>
+      <div class="li">没有空闲寄存器可存 <span class="m">g</span></div>
+      <div class="li">访问 g 必须走 <span class="m">FS:偏移</span> 的 IE / GOT TLS</div>
+      <div class="li">正是 musl 拒绝的那种形态;需完整移植 amd64 TLSDESC 后端(PR #75048,未释出)</div>
+      <div class="res no">✗ 模拟器(x86_64)这条路走不通</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    苦涩的结局:本机是 x86_64 主机 —— <b>连 arm64 模拟器都开不出来</b>。回到开头「先确认模拟器架构」那步的 x86_64,最终决定了模拟器走不通。
+  </div>
+</div>
+</body></html>
