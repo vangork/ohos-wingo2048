@@ -1,12 +1,12 @@
 # Build golang lib for OpenHarmony OS
 
-目前在研究如何在华为鸿蒙系统上使用golang编写的lib，学习到下面完整实现的Wingo2048的blog，非常详尽。
+最近在研究如何在华为鸿蒙系统上开发app并调用golang编写的lib，找到下面一篇blog，非常详尽的描述了Wingo2048的实现过程，并包含完整的源代码。
 - Blog: https://harmonypc.csdn.net/6a3a2d2a10ee7a33f28113d2.html
 - Source Code: https://atomgit.com/OpenHarmonyPCDeveloper/ohos_project-wingo2048
 
-由于手边没有华为鸿蒙真机，而华为DevEco Studio提供的模拟器却又只支持`x86_64`ABI。
+然而由于golang的限制，现行的golang版本只支持编译出适配`arm64`架构的lib，而华为DevEco Studio提供的模拟器却又只支持`x86_64`架构, 此项目只能在真机上进行部署测试。
 
-于是研究了已下链接，patch了golang以兼容musl libc，生成了适配x86_64的`lib2048core.so`, 目前此project已支持在模拟器中完美运行。
+由于手边没有华为鸿蒙真机，于是研究了以下链接，patch了golang以兼容musl libc，生成了适配x86_64的`lib2048core.so`, 目前此project已支持在模拟器中完美运行。
 1. https://gitcode.com/openharmony-sig/ohos_golang_go
 2. https://gitcode.com/lycodestore1/thirdpartydocs/wiki/go%E5%BA%94%E7%94%A8%E9%80%82%E9%85%8D%E9%B8%BF%E8%92%99PC%E6%8C%87%E5%8D%97.md
 3. https://github.com/golang/go/pull/75048
