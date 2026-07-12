@@ -6,7 +6,7 @@
 
 然而由于golang的限制，现行的golang版本只支持编译出适配`arm64`架构的lib，而华为DevEco Studio提供的模拟器却又只支持`x86_64`架构, 此项目只能在真机上进行部署测试。
 
-由于手边没有华为鸿蒙真机，于是研究了以下链接，patch了golang以兼容musl libc，生成了适配x86_64的`lib2048core.so`, 目前此project已支持在模拟器中完美运行。
+由于手边没有华为鸿蒙真机，于是研究了以下链接，做了一个[golang patch](https://github.com/vangork/go/tree/ohos-musl)以兼容musl libc，生成了适配x86_64的`lib2048core.so`, 目前此project已支持在模拟器中完美运行。
 1. https://gitcode.com/openharmony-sig/ohos_golang_go
 2. https://gitcode.com/lycodestore1/thirdpartydocs/wiki/go%E5%BA%94%E7%94%A8%E9%80%82%E9%85%8D%E9%B8%BF%E8%92%99PC%E6%8C%87%E5%8D%97.md
 3. https://github.com/golang/go/pull/75048
